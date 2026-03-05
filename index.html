@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Hot Singles Near You</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --red: #e8103a;
+        --pink: #ff4d6d;
+        --hot: #ff2d55;
+        --dark: #0a0a0f;
+        --surface: #12121a;
+        --card: #1a1a26;
+        --border: rgba(255, 255, 255, 0.07);
+        --text: #f0f0f0;
+        --muted: #888;
+        --grad: linear-gradient(135deg, #e8103a, #ff4d6d);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--dark);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            rgba(232, 16, 58, 0.18) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 110%,
+            rgba(255, 77, 109, 0.12) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── TOPBAR ── */
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(10, 10, 15, 0.85);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 26px;
+        letter-spacing: 1px;
+        background: var(--grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .badge-live {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        border-radius: 100px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4ade80;
+      }
+      .pulse-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+        animation: pulse-dot 1.4s ease infinite;
+      }
+      @keyframes pulse-dot {
+        0% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+      }
+
+      /* ── VIDEO BG ── */
+      .video-bg-wrap {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .video-bg-wrap video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.45;
+        filter: saturate(1.3) brightness(0.6);
+      }
+      .video-bg-wrap::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(10, 10, 15, 0.55) 0%,
+          rgba(180, 10, 40, 0.18) 40%,
+          rgba(10, 10, 15, 0.85) 100%
+        );
+      }
+
+      /* ── HERO ── */
+      .hero {
+        text-align: center;
+        padding: 56px 20px 40px;
+      }
+      .geo-tag {
+        display: inline-block;
+        background: rgba(255, 77, 109, 0.12);
+        border: 1px solid rgba(255, 77, 109, 0.3);
+        border-radius: 100px;
+        padding: 5px 16px;
+        font-size: 13px;
+        color: #ff8fa3;
+        margin-bottom: 20px;
+        animation: fadeUp 0.5s ease both;
+      }
+      .hero h1 {
+        font-family: "Bebas Neue", cursive;
+        font-size: clamp(42px, 9vw, 76px);
+        line-height: 1;
+        letter-spacing: 1px;
+        animation: fadeUp 0.6s ease 0.1s both;
+      }
+      .hero h1 span {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero-sub {
+        margin-top: 14px;
+        font-size: 16px;
+        color: var(--muted);
+        animation: fadeUp 0.6s ease 0.2s both;
+      }
+
+      .cta-btn {
+        display: inline-block;
+        margin-top: 30px;
+        background: var(--grad);
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 18px 42px;
+        border-radius: 60px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        letter-spacing: 0.3px;
+        box-shadow:
+          0 8px 40px rgba(232, 16, 58, 0.45),
+          0 2px 8px rgba(0, 0, 0, 0.4);
+        animation:
+          fadeUp 0.6s ease 0.3s both,
+          glow-pulse 2.5s ease 1.5s infinite;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+        position: relative;
+        overflow: hidden;
+      }
+      .cta-btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.18),
+          transparent 50%
+        );
+        border-radius: inherit;
+      }
+      .cta-btn:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow:
+          0 12px 50px rgba(232, 16, 58, 0.6),
+          0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+      .cta-btn:active {
+        transform: scale(0.98);
+      }
+      @keyframes glow-pulse {
+        0%,
+        100% {
+          box-shadow:
+            0 8px 40px rgba(232, 16, 58, 0.45),
+            0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+        50% {
+          box-shadow:
+            0 8px 60px rgba(232, 16, 58, 0.7),
+            0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+      }
+      .cta-note {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #555;
+        animation: fadeUp 0.6s ease 0.4s both;
+      }
+
+      /* ── PROFILES ── */
+      .profiles-section {
+        padding: 36px 20px;
+        text-align: center;
+      }
+      .section-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--hot);
+        margin-bottom: 18px;
+        font-weight: 600;
+      }
+      .profiles-grid {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .profile-card {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2.5px solid rgba(255, 77, 109, 0.4);
+        box-shadow: 0 4px 20px rgba(232, 16, 58, 0.25);
+        flex-shrink: 0;
+        animation: fadeUp 0.6s ease both;
+      }
+      .profile-card:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .profile-card:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .profile-card:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .profile-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(6px) brightness(0.85);
+        transform: scale(1.1);
+        transition: filter 0.3s;
+      }
+      .profile-card:hover img {
+        filter: blur(3px) brightness(0.9);
+      }
+      .profile-lock {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        color: #fff;
+      }
+      .lock-icon {
+        font-size: 18px;
+      }
+      .profile-name {
+        font-size: 10px;
+        font-weight: 600;
+        opacity: 0.9;
+      }
+      .profiles-cta {
+        margin-top: 18px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .profiles-cta strong {
+        color: var(--pink);
+      }
+
+      /* ── COUNTDOWN ── */
+      .countdown-section {
+        margin: 0 20px 32px;
+        background: rgba(232, 16, 58, 0.08);
+        border: 1px solid rgba(232, 16, 58, 0.25);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+      }
+      .countdown-label {
+        font-size: 13px;
+        color: #aaa;
+        margin-bottom: 10px;
+      }
+      .countdown-label span {
+        color: var(--pink);
+        font-weight: 600;
+      }
+      .timer-display {
+        font-family: "Bebas Neue", cursive;
+        font-size: 52px;
+        letter-spacing: 4px;
+        color: #fff;
+        text-shadow: 0 0 30px rgba(255, 45, 85, 0.6);
+      }
+      .timer-display .colon {
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+
+      /* ── STEPS ── */
+      .steps-section {
+        padding: 10px 20px 36px;
+      }
+      .steps-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 18px;
+        text-align: center;
+      }
+      .steps-title span {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+        transition: border-color 0.2s;
+      }
+      .step:hover {
+        border-color: rgba(232, 16, 58, 0.3);
+      }
+      .step-num {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--grad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", cursive;
+        font-size: 20px;
+        box-shadow: 0 4px 14px rgba(232, 16, 58, 0.4);
+      }
+      .step-text h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 3px;
+      }
+      .step-text p {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .step-note {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-top: 6px;
+      }
+      .step-note span {
+        color: #ff8fa3;
+      }
+
+      /* ── BOTTOM CTA ── */
+      .bottom-cta {
+        padding: 30px 20px 50px;
+        text-align: center;
+        background: linear-gradient(
+          to top,
+          rgba(232, 16, 58, 0.08),
+          transparent
+        );
+      }
+      .bottom-cta h2 {
+        font-family: "Bebas Neue", cursive;
+        font-size: clamp(30px, 7vw, 50px);
+        margin-bottom: 8px;
+      }
+      .bottom-cta p {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 24px;
+      }
+      .security-note {
+        margin-top: 14px;
+        font-size: 11px;
+        color: #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      /* ── ACTIVITY POPUP ── */
+      .activity-popup {
+        position: fixed;
+        bottom: 20px;
+        left: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 280px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        z-index: 200;
+        transform: translateX(-130%);
+        transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+      }
+      .activity-popup.show {
+        transform: translateX(0);
+      }
+      .activity-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--grad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .activity-text {
+        font-size: 13px;
+      }
+      .activity-text strong {
+        display: block;
+        font-size: 14px;
+        color: #fff;
+      }
+      .activity-text span {
+        color: var(--muted);
+      }
+      .activity-time {
+        font-size: 11px;
+        color: var(--hot);
+        margin-top: 2px;
+      }
+
+      /* ── CHAT POPUP ── */
+      .chat-popup {
+        position: fixed;
+        bottom: 20px;
+        right: 16px;
+        background: var(--card);
+        border: 1px solid rgba(232, 16, 58, 0.3);
+        border-radius: 14px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 260px;
+        box-shadow: 0 8px 30px rgba(232, 16, 58, 0.2);
+        z-index: 200;
+        transform: translateX(130%);
+        transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+        cursor: pointer;
+      }
+      .chat-popup.show {
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+      .chat-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b6b, #ff4d6d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+        position: relative;
+      }
+      .chat-avatar::after {
+        content: "";
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        border: 2px solid var(--card);
+      }
+      .chat-text {
+        font-size: 13px;
+      }
+      .chat-text strong {
+        display: block;
+        font-size: 13px;
+        color: #ff8fa3;
+      }
+      .chat-text span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .chat-badge {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      /* ── EXIT POPUP ── */
+      .exit-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(6px);
+        z-index: 999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .exit-overlay.show {
+        display: flex;
+      }
+      .exit-modal {
+        background: var(--surface);
+        border: 1px solid rgba(232, 16, 58, 0.35);
+        border-radius: 24px;
+        padding: 36px 28px;
+        text-align: center;
+        max-width: 360px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(232, 16, 58, 0.25);
+        animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          transform: scale(0.85);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .exit-emoji {
+        font-size: 52px;
+        margin-bottom: 14px;
+      }
+      .exit-modal h2 {
+        font-family: "Bebas Neue", cursive;
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+      .exit-modal p {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+      .exit-close {
+        margin-top: 14px;
+        font-size: 12px;
+        color: #555;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      .exit-close:hover {
+        color: #888;
+      }
+
+      /* ── ANIMATIONS ── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(22px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 420px) {
+        .profile-card {
+          width: 82px;
+          height: 82px;
+        }
+        .timer-display {
+          font-size: 42px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- VIDEO BACKGROUND -->
+    <div class="video-bg-wrap">
+      <!--
+    🎬 নিজের ভিডিও দিতে চাইলে নিচের src="..." এর লিঙ্ক বদলান।
+    যেকোনো MP4 লিঙ্ক কাজ করবে।
+    Pexels থেকে ফ্রি ভিডিও: https://www.pexels.com/videos/
+  -->
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        src="https://videos.pexels.com/video-files/3195394/3195394-uhd_2560_1440_25fps.mp4"
+      ></video>
+    </div>
+
+    <div class="wrap">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="logo">FlirtLocal</div>
+        <div class="badge-live">
+          <div class="pulse-dot"></div>
+          <span id="onlineCount">5,247 Online Now</span>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="geo-tag">📍 <span id="geoCity">Singles near you</span></div>
+        <h1 id="heroTitle">
+          Hot Singles <span>Near You</span><br />Want to Chat
+        </h1>
+        <p class="hero-sub">
+          Real profiles. Real connections. No strings attached.
+        </p>
+        <a
+          href="http://www.cfetrk.com/aff_c?offer_id=15705&aff_id=48041&aff_sub=Paid"
+          class="cta-btn"
+          onclick="trackCTA('hero')"
+        >
+          🔥 Unlock Profiles – Join Free
+        </a>
+        <p class="cta-note">🔒 Free to join · No credit card required</p>
+      </section>
+
+      <!-- PROFILES -->
+      <section class="profiles-section">
+        <div class="section-label">Profiles near you</div>
+        <div class="profiles-grid">
+          <div class="profile-card">
+            <img src="https://picsum.photos/seed/girl1/200/200" alt="" />
+            <div class="profile-lock">
+              <div class="lock-icon">🔒</div>
+              <div class="profile-name">Jessica</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <img src="https://picsum.photos/seed/girl4/200/200" alt="" />
+            <div class="profile-lock">
+              <div class="lock-icon">🔒</div>
+              <div class="profile-name">Amanda</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <img src="https://picsum.photos/seed/girl7/200/200" alt="" />
+            <div class="profile-lock">
+              <div class="lock-icon">🔒</div>
+              <div class="profile-name">Sophie</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <img src="https://picsum.photos/seed/girl11/200/200" alt="" />
+            <div class="profile-lock">
+              <div class="lock-icon">🔒</div>
+              <div class="profile-name">Emma</div>
+            </div>
+          </div>
+        </div>
+        <p class="profiles-cta">
+          Join free to unlock <strong>1,200+ profiles</strong> near you
+        </p>
+      </section>
+
+      <!-- COUNTDOWN -->
+      <div class="countdown-section">
+        <div class="countdown-label">
+          <span>⚡ Limited offer</span> · Free access expires in:
+        </div>
+        <div class="timer-display">
+          <span id="timerMin">02</span><span class="colon">:</span
+          ><span id="timerSec">00</span>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <section class="steps-section">
+        <div class="steps-title">Get started in <span>2 easy steps</span></div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h3>Create your free account</h3>
+            <p>Sign up in under 60 seconds. No credit card needed.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h3>Verify your email to activate chat</h3>
+            <p>Check your inbox or spam folder for the confirmation link.</p>
+          </div>
+        </div>
+        <p class="step-note">
+          💌 Didn't receive it? Check your <span>spam / junk folder</span>
+        </p>
+      </section>
+
+      <!-- BOTTOM CTA -->
+      <section class="bottom-cta">
+        <h2>Don't Keep Them Waiting</h2>
+        <p>Thousands of singles in your area are online right now</p>
+        <a
+          href="http://www.cfetrk.com/aff_c?offer_id=15705&aff_id=48041&aff_sub=Paid"
+          class="cta-btn"
+          onclick="trackCTA('bottom')"
+        >
+          💬 Start Chatting – It's Free
+        </a>
+        <div class="security-note">
+          🔒 SSL Secured · 100% Discreet · No Spam
+        </div>
+      </section>
+    </div>
+    <!-- /wrap -->
+
+    <!-- ACTIVITY POPUP -->
+    <div class="activity-popup" id="activityPopup">
+      <div class="activity-avatar" id="activityEmoji">💋</div>
+      <div class="activity-text">
+        <strong id="activityName">Jessica</strong>
+        <span id="activityAction">just joined from New York</span>
+        <div class="activity-time">Just now</div>
+      </div>
+    </div>
+
+    <!-- CHAT POPUP -->
+    <div
+      class="chat-popup"
+      id="chatPopup"
+      onclick="
+        window.location =
+          'http://www.cfetrk.com/aff_c?offer_id=15705&aff_id=48041&aff_sub=Paid'
+      "
+    >
+      <div class="chat-avatar">💌</div>
+      <div class="chat-text">
+        <strong>Emma sent you a message</strong>
+        <span>"Hey, are you nearby? 😊"</span>
+      </div>
+      <div class="chat-badge">1</div>
+    </div>
+
+    <!-- EXIT POPUP -->
+    <div class="exit-overlay" id="exitOverlay">
+      <div class="exit-modal">
+        <div class="exit-emoji">😍</div>
+        <h2>Wait! Don't Miss This</h2>
+        <p>
+          Singles are waiting to chat with you right now. Your free access is
+          almost gone!
+        </p>
+        <a
+          href="http://www.cfetrk.com/aff_c?offer_id=15705&aff_id=48041&aff_sub=Paid"
+          class="cta-btn"
+          style="display: block; margin: 0 auto"
+          onclick="trackCTA('exit')"
+        >
+          🔥 Stay & Meet Singles
+        </a>
+        <div class="exit-close" onclick="closeExit()">
+          No thanks, I'll miss out
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── GEO DETECTION ──
+      (async () => {
+        try {
+          const r = await fetch("https://ipapi.co/json/");
+          const d = await r.json();
+          const city = d.city || "";
+          if (city) {
+            document.getElementById("geoCity").textContent =
+              "Singles in " + city;
+            document.getElementById("heroTitle").innerHTML =
+              "Hot Singles in <span>" + city + "</span><br>Want to Chat";
+          }
+        } catch (e) {}
+      })();
+
+      // ── ONLINE COUNT FLUCTUATION ──
+      let baseCount = 5247;
+      setInterval(() => {
+        baseCount += Math.floor(Math.random() * 6) - 2;
+        document.getElementById("onlineCount").textContent =
+          baseCount.toLocaleString() + " Online Now";
+      }, 4000);
+
+      // ── COUNTDOWN TIMER ──
+      let totalSecs = 120;
+      const timerMin = document.getElementById("timerMin");
+      const timerSec = document.getElementById("timerSec");
+      const tick = setInterval(() => {
+        if (totalSecs <= 0) {
+          clearInterval(tick);
+          totalSecs = 0;
+        }
+        const m = Math.floor(totalSecs / 60);
+        const s = totalSecs % 60;
+        timerMin.textContent = String(m).padStart(2, "0");
+        timerSec.textContent = String(s).padStart(2, "0");
+        totalSecs--;
+      }, 1000);
+
+      // ── ACTIVITY NOTIFICATIONS ──
+      const activities = [
+        { name: "Jessica", action: "just joined from New York", emoji: "💋" },
+        { name: "Amanda", action: "just signed up from London", emoji: "🌸" },
+        {
+          name: "Sophie",
+          action: "is looking for someone near you",
+          emoji: "❤️",
+        },
+        { name: "Mia", action: "just went online from Paris", emoji: "💄" },
+        { name: "Ashley", action: "viewed 3 profiles near you", emoji: "👀" },
+        { name: "Kayla", action: "just joined from Chicago", emoji: "🔥" },
+        { name: "Lauren", action: "is online and chatting now", emoji: "💬" },
+      ];
+      let aIdx = 0;
+      const popup = document.getElementById("activityPopup");
+      function showActivity() {
+        const a = activities[aIdx % activities.length];
+        document.getElementById("activityName").textContent = a.name;
+        document.getElementById("activityAction").textContent = a.action;
+        document.getElementById("activityEmoji").textContent = a.emoji;
+        popup.classList.add("show");
+        setTimeout(() => popup.classList.remove("show"), 4000);
+        aIdx++;
+      }
+      setTimeout(() => {
+        showActivity();
+        setInterval(showActivity, 9000);
+      }, 2500);
+
+      // ── CHAT POPUP ──
+      const chatPopup = document.getElementById("chatPopup");
+      setTimeout(() => {
+        chatPopup.classList.add("show");
+        setTimeout(() => chatPopup.classList.remove("show"), 7000);
+      }, 6000);
+
+      // ── EXIT INTENT ──
+      let exitShown = false;
+      document.addEventListener("mouseleave", (e) => {
+        if (e.clientY < 10 && !exitShown) {
+          exitShown = true;
+          showExit();
+        }
+      });
+      // Mobile: back button / scroll up fast
+      let lastY = 0;
+      window.addEventListener("scroll", () => {
+        const y = window.scrollY;
+        if (lastY - y > 80 && !exitShown && y < 200) {
+          exitShown = true;
+          showExit();
+        }
+        lastY = y;
+      });
+      function showExit() {
+        document.getElementById("exitOverlay").classList.add("show");
+      }
+      function closeExit() {
+        document.getElementById("exitOverlay").classList.remove("show");
+      }
+
+      // ── CTA TRACKING ──
+      function trackCTA(loc) {
+        console.log("CTA clicked:", loc);
+        // Replace with your tracking pixel / postback
+      }
+    </script>
+  </body>
+</html>
